@@ -8,9 +8,11 @@ class SalesProvider extends ChangeNotifier {
   Map<String, int> productQuantities = {}; // Stores quantity for each product
   String _selectedCustomerPhoneno = '';
   String _selectedCustomerName = 'Cash Sale';
+  final DatabaseHelper databaseHelper = DatabaseHelper();
 
   List<Map<String, dynamic>> get carts => cart;
   String get selectedCustomerPhoneno => _selectedCustomerPhoneno;
+  Stream<QuerySnapshot> get salesStream => databaseHelper.getSales();
   String get selectedCustomerName => _selectedCustomerName;
 
   // ✅ Get quantity for a product (default 0 if not set)
@@ -37,21 +39,22 @@ class SalesProvider extends ChangeNotifier {
     // Convert numeric ID to string if needed
     String id = product['id'].toString();
     log("Adding to cart: $id");
-    
+
     int quantity = getQuantity(id);
-    if (quantity == 0) quantity = 1; // Set default quantity to 1 if not already set
-    
+    if (quantity == 0)
+      quantity = 1; // Set default quantity to 1 if not already set
+
     double price = double.tryParse(product['price'].toString()) ?? 0.0;
-    
+
     var existingProduct = cart.firstWhere(
       (item) => item['id'] == id,
       orElse: () => {},
     );
-    
+
     if (existingProduct.isNotEmpty) {
       cart.removeWhere((item) => item['id'] == id);
     }
-    
+
     cart.add({
       'id': id,
       'productName': product['name'],
@@ -59,7 +62,7 @@ class SalesProvider extends ChangeNotifier {
       'pricePerItem': price,
       'totalPrice': price * quantity,
     });
-    
+
     notifyListeners();
   }
 
@@ -80,12 +83,12 @@ class SalesProvider extends ChangeNotifier {
       );
       return;
     }
-    
+
     // ✅ Check stock availability before proceeding
     for (var item in cart) {
       String productId = item['id'];
       log("Checking product: $productId");
-      
+
       try {
         // Query by ID field instead of document ID
         QuerySnapshot productQuery = await FirebaseFirestore.instance
@@ -93,21 +96,23 @@ class SalesProvider extends ChangeNotifier {
             .where('id', isEqualTo: int.parse(productId))
             .limit(1)
             .get();
-            
+
         if (productQuery.docs.isEmpty) {
           log("Product not found with ID: $productId");
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Product ${item['productName']} not found!')),
+            SnackBar(
+                content: Text('Product ${item['productName']} not found!')),
           );
           return;
         }
-        
+
         DocumentSnapshot productSnapshot = productQuery.docs.first;
         int currentStock = int.parse(productSnapshot['stock'].toString());
-        
+
         if (currentStock < item['quantity']) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Not enough stock for ${item['productName']}')),
+            SnackBar(
+                content: Text('Not enough stock for ${item['productName']}')),
           );
           return;
         }
@@ -119,15 +124,15 @@ class SalesProvider extends ChangeNotifier {
         return;
       }
     }
-    
+
     // ✅ Ensure all prices are numbers
     double totalAmount = cart.fold(0.0, (total, item) {
       double itemTotal = double.tryParse(item['totalPrice'].toString()) ?? 0.0;
       return total + itemTotal;
     });
-    
+
     Map<String, dynamic> saleData = {
-      'customerPhoneno': 
+      'customerPhoneno':
           _selectedCustomerPhoneno.isNotEmpty ? _selectedCustomerPhoneno : null,
       'customerName': _selectedCustomerPhoneno.isNotEmpty
           ? _selectedCustomerName
@@ -137,33 +142,34 @@ class SalesProvider extends ChangeNotifier {
       'date': Timestamp.now(),
       'soldBy': 'adminId',
     };
-    
+
     try {
       await DatabaseHelper().addSale(saleData);
-      
+
       // Update stock for each item
       for (var item in cart) {
         String productId = item['id'];
         int quantity = item['quantity'];
-        
+
         QuerySnapshot productQuery = await FirebaseFirestore.instance
             .collection('products')
             .where('id', isEqualTo: int.parse(productId))
             .limit(1)
             .get();
-            
+
         if (!productQuery.docs.isEmpty) {
           DocumentReference productRef = productQuery.docs.first.reference;
           DocumentSnapshot productSnapshot = await productRef.get();
           int currentStock = int.parse(productSnapshot['stock'].toString());
-          await productRef.update({'stock': (currentStock - quantity).toString()});
+          await productRef
+              .update({'stock': (currentStock - quantity).toString()});
         }
       }
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Sale recorded successfully')),
       );
-      
+
       cart.clear();
       productQuantities.clear();
       notifyListeners();

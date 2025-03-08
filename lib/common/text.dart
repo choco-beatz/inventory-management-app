@@ -89,6 +89,24 @@ class Text16 extends StatelessWidget {
   }
 }
 
+class Text14 extends StatelessWidget {
+  final String text;
+  const Text14({
+    super.key,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      softWrap: true,
+      overflow: TextOverflow.visible,
+      style: const TextStyle(fontSize: 14),
+    );
+  }
+}
+
 class TextW16 extends StatelessWidget {
   final String text;
   const TextW16({
@@ -120,6 +138,26 @@ class TextM16 extends StatelessWidget {
       style: const TextStyle(
           overflow: TextOverflow.ellipsis,
           fontSize: 16,
+          color: mainColor,
+          fontWeight: FontWeight.bold),
+    );
+  }
+}
+
+class TextM18 extends StatelessWidget {
+  final String text;
+  const TextM18({
+    super.key,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+          overflow: TextOverflow.ellipsis,
+          fontSize: 18,
           color: mainColor,
           fontWeight: FontWeight.bold),
     );

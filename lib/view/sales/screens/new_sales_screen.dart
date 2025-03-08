@@ -40,7 +40,7 @@ class NewSales extends StatelessWidget {
                 stream: productProvider.products,
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (!snapshot.hasData) {
-                    return const CircularProgressIndicator();
+                    return const Center(child: CircularProgressIndicator());
                   }
                   var products = snapshot.data!.docs;
 

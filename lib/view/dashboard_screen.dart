@@ -3,7 +3,7 @@ import 'package:inventory_management_app/common/widgets/custom_appbar.dart';
 import 'package:inventory_management_app/common/widgets/custom_menu_button.dart';
 import 'package:inventory_management_app/view/customers/screens/customer_screen.dart';
 import 'package:inventory_management_app/view/inventory/screens/inventory_screen.dart';
-import 'package:inventory_management_app/view/report_screen.dart';
+import 'package:inventory_management_app/view/report/screens/report_screen.dart';
 import 'package:inventory_management_app/view/sales/screens/sales_screen.dart';
 
 class DashboardScreen extends StatelessWidget {

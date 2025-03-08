@@ -4,6 +4,7 @@ import 'package:inventory_management_app/common/colors.dart';
 import 'package:inventory_management_app/data/provider/customer_provider.dart';
 import 'package:inventory_management_app/data/provider/login_provider.dart';
 import 'package:inventory_management_app/data/provider/product_provider.dart';
+import 'package:inventory_management_app/data/provider/report_provider.dart';
 import 'package:inventory_management_app/data/provider/sales_provider.dart';
 import 'package:inventory_management_app/view/dashboard_screen.dart';
 import 'package:inventory_management_app/view/login_screen.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => ProductProvider()),
         ChangeNotifierProvider(create: (context) => CustomerProvider()),
         ChangeNotifierProvider(create: (context) => SalesProvider()),
+        ChangeNotifierProvider(create: (context) => ReportsProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

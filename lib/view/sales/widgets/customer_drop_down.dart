@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:inventory_management_app/common/colors.dart';
+import 'package:inventory_management_app/common/dropdown_decoration.dart';
 import 'package:inventory_management_app/data/provider/sales_provider.dart';
 
 class DropDownForm extends StatelessWidget {
@@ -22,15 +22,7 @@ class DropDownForm extends StatelessWidget {
       }
     });
     return DropdownButtonFormField<String>(
-      decoration: const InputDecoration(
-        focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: mainColor),
-            borderRadius: BorderRadius.all(Radius.circular(15))),
-        enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: mainColor),
-            borderRadius: BorderRadius.all(Radius.circular(15))),
-        labelStyle: TextStyle(color: mainColor, fontSize: 18),
-      ),
+      decoration: dropdownDecoration,
       value: salesProvider.selectedCustomerPhoneno.isNotEmpty
           ? salesProvider.selectedCustomerPhoneno
           : null,
