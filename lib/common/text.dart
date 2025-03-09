@@ -119,7 +119,7 @@ class TextW16 extends StatelessWidget {
     return Text(
       text,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(fontSize: 16, color: white),
+      style: const TextStyle(fontSize: 16, color: offWhite),
     );
   }
 }

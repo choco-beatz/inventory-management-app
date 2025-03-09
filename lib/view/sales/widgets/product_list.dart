@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:inventory_management_app/common/text.dart';
@@ -47,6 +49,7 @@ class ProductList extends StatelessWidget {
         ),
         trailing: InkWell(
           onTap: () {
+            log(salesProvider.getQuantity(id).toString());
             salesProvider.addToCart(product.data() as Map<String, dynamic>);
           },
           child: const CustomDialogButton(text: 'ADD'),

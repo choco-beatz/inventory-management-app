@@ -16,10 +16,17 @@ class ReportScreen extends StatelessWidget {
     final ReportsProvider reportsProvider =
         Provider.of<ReportsProvider>(context);
     return Scaffold(
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(60),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
         child: CustomAppBar(
           title: "Reports",
+          actionsList: [
+            IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.share,
+                ))
+          ],
         ),
       ),
       body: Padding(

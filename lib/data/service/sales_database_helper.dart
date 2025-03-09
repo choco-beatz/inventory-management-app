@@ -21,11 +21,13 @@ class DatabaseHelper {
         }
       });
     }
-
+  
     
   }
   // ✅ Fetch sales ordered by date
   Stream<QuerySnapshot> getSales() {
     return _firestore.collection('sales').orderBy('date', descending: true).snapshots();
   }
+
+ 
 }

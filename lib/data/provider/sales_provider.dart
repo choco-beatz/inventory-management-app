@@ -15,6 +15,70 @@ class SalesProvider extends ChangeNotifier {
   Stream<QuerySnapshot> get salesStream => databaseHelper.getSales();
   String get selectedCustomerName => _selectedCustomerName;
 
+   int _selectedMonth = DateTime.now().month;
+  int _selectedYear = DateTime.now().year;
+
+  int get selectedMonth => _selectedMonth;
+  int get selectedYear => _selectedYear;
+
+   void updateMonthYear(int month, int year) {
+    _selectedMonth = month;
+    _selectedYear = year;
+    notifyListeners(); 
+  }
+
+  void updateSelectedCustomer(String phoneno, String name) {
+    _selectedCustomerPhoneno = phoneno;
+    _selectedCustomerName = name;
+    notifyListeners();
+  }
+
+
+  Stream<Map<String, Map<String, dynamic>>> get itemReportStream {
+    return salesStream.map((snapshot) {
+      Map<String, Map<String, dynamic>> itemReport = {};
+
+      for (var sale in snapshot.docs) {
+        Timestamp timestamp = sale['date'];
+        DateTime saleDate = timestamp.toDate();
+
+        // 🔥 Filter by selected month and year
+        if (saleDate.month == _selectedMonth && saleDate.year == _selectedYear) {
+          List<dynamic> items = sale['items'];
+
+          for (var item in items) {
+            String productName = item['productName'];
+            int quantity = item['quantity'];
+            double totalPrice = item['totalPrice'];
+
+            if (!itemReport.containsKey(productName)) {
+              itemReport[productName] = {
+                'totalQty': 0,
+                'totalRevenue': 0.0,
+              };
+            }
+
+            itemReport[productName]!['totalQty'] += quantity;
+            itemReport[productName]!['totalRevenue'] += totalPrice;
+          }
+        }
+      }
+
+      return itemReport;
+    });
+  }
+
+  Stream<List<QueryDocumentSnapshot>> get filteredSalesStream {
+    return databaseHelper.getSales().map((querySnapshot) {
+      return querySnapshot.docs.where((sale) {
+        Timestamp timestamp = sale['date'];
+        DateTime saleDate = timestamp.toDate();
+        return saleDate.month == _selectedMonth && saleDate.year == _selectedYear;
+      }).toList();
+      
+    });
+  }
+
   // ✅ Get quantity for a product (default 0 if not set)
   int getQuantity(String id) {
     return productQuantities[id] ?? 0;
@@ -41,8 +105,6 @@ class SalesProvider extends ChangeNotifier {
     log("Adding to cart: $id");
 
     int quantity = getQuantity(id);
-    if (quantity == 0)
-      quantity = 1; // Set default quantity to 1 if not already set
 
     double price = double.tryParse(product['price'].toString()) ?? 0.0;
 
@@ -87,7 +149,11 @@ class SalesProvider extends ChangeNotifier {
     // ✅ Check stock availability before proceeding
     for (var item in cart) {
       String productId = item['id'];
-      log("Checking product: $productId");
+      log("Checking product: ${productQuantities[productId]}");
+
+      int quantity = productQuantities[productId] ?? item['quantity'];
+
+      log("Checking Product: $productId | Quantity: $quantity");
 
       try {
         // Query by ID field instead of document ID
@@ -109,7 +175,7 @@ class SalesProvider extends ChangeNotifier {
         DocumentSnapshot productSnapshot = productQuery.docs.first;
         int currentStock = int.parse(productSnapshot['stock'].toString());
 
-        if (currentStock < item['quantity']) {
+        if (currentStock < quantity) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text('Not enough stock for ${item['productName']}')),
