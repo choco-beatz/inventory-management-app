@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class DatabaseHelper {
+class CustomerDatabaseHelper {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   //Check if phone no already exist

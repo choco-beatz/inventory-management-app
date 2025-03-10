@@ -45,7 +45,7 @@ class AddProducts extends StatelessWidget {
               CustomTextFormField(
                 controller: priceController,
                 hint: "Price",
-                label: "Product's Name",
+                label: "Price",
                 number: true,
               ),
               productProvider.isLoading

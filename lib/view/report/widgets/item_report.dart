@@ -34,10 +34,9 @@ class ItemReport extends StatelessWidget {
                     scrollDirection: Axis.horizontal,
                     child: DataTable(
                       border: TableBorder.all(
-                          color: mainColor,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(15))),
-                      columnSpacing: 40,
+                        color: mainColor,
+                      ),
+                      columnSpacing: 45,
                       columns: const [
                         DataColumn(
                           label: TextM18(text: "Product"),

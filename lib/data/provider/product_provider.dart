@@ -6,7 +6,7 @@ class ProductProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  Stream<QuerySnapshot> get products => DatabaseHelper().getProducts();
+  Stream<QuerySnapshot> get products => ProductDatabaseHelper().getProducts();
 
   String _searchQuery = '';
   String get searchQuery => _searchQuery;
@@ -18,7 +18,7 @@ class ProductProvider extends ChangeNotifier {
 
   Future<void> deleteProduct(String id, BuildContext context) async {
     try {
-      await DatabaseHelper().deleteProduct(id);
+      await ProductDatabaseHelper().deleteProduct(id);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Product Deleted Successfully')),
       );
@@ -45,7 +45,7 @@ class ProductProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await DatabaseHelper().addProduct(productData);
+      await ProductDatabaseHelper().addProduct(productData);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Product Added Successfully')),
@@ -65,7 +65,7 @@ class ProductProvider extends ChangeNotifier {
   Future<void> updateProduct(
       String id, Map<String, dynamic> updatedData, BuildContext context) async {
     try {
-      await DatabaseHelper().updateProduct(id, updatedData);
+      await ProductDatabaseHelper().updateProduct(id, updatedData);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Product Updated Successfully')),
       );

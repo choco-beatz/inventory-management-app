@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class DatabaseHelper {
+class SalesDatabaseHelper {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Add a new sale
   Future<void> addSale(Map<String, dynamic> saleData) async {
-    // ✅ First, save the sale in Firestore
+    //First, save the sale in Firestore
     await _firestore.collection('sales').add(saleData);
 
-    // ✅ Reduce inventory stock for each product in the sale
+    //Reduce inventory stock for each product in the sale
     for (var item in saleData['items']) {
       DocumentReference productRef =
           _firestore.collection('products').doc(item['id']);
@@ -24,7 +24,7 @@ class DatabaseHelper {
   
     
   }
-  // ✅ Fetch sales ordered by date
+  //Fetch sales ordered by date
   Stream<QuerySnapshot> getSales() {
     return _firestore.collection('sales').orderBy('date', descending: true).snapshots();
   }

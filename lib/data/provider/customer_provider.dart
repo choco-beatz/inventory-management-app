@@ -6,7 +6,7 @@ class CustomerProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-   Stream<QuerySnapshot> get customers => DatabaseHelper().getCustomers();
+   Stream<QuerySnapshot> get customers => CustomerDatabaseHelper().getCustomers();
 
 
   Future<void> addCustomer(Map<String, dynamic> customerData, BuildContext context) async {
@@ -24,7 +24,7 @@ class CustomerProvider extends ChangeNotifier {
 
     try {
       // Check if phone number already exists
-      bool phoneExists = await DatabaseHelper().isPhoneNumberExists(customerData['phoneno']);
+      bool phoneExists = await CustomerDatabaseHelper().isPhoneNumberExists(customerData['phoneno']);
 
       if (phoneExists) {
         if (context.mounted) {
@@ -33,7 +33,7 @@ class CustomerProvider extends ChangeNotifier {
           );
         }
       } else {
-        await DatabaseHelper().addCustomer(customerData);
+        await CustomerDatabaseHelper().addCustomer(customerData);
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
