@@ -55,7 +55,7 @@ class ReportScreen extends StatelessWidget {
                           .salesStream
                           .first;
 
-                  // 🔥 Transform sales data into a product-wise summary
+                  //Transform sales data into a product-wise summary
                   Map<String, Map<String, dynamic>> productSummary = {};
 
                   for (var sale in snapshot.docs) {
@@ -66,13 +66,13 @@ class ReportScreen extends StatelessWidget {
                       int quantity = item['quantity'];
                       double totalRevenue = item['totalPrice'];
 
-                      // ✅ If product already exists, update quantity & revenue
+                      //If product already exists, update quantity & revenue
                       if (productSummary.containsKey(productName)) {
                         productSummary[productName]!['totalQty'] += quantity;
                         productSummary[productName]!['totalRevenue'] +=
                             totalRevenue;
                       } else {
-                        // ✅ If new product, initialize values
+                        //If new product, initialize values
                         productSummary[productName] = {
                           'totalQty': quantity,
                           'totalRevenue': totalRevenue,
@@ -82,10 +82,10 @@ class ReportScreen extends StatelessWidget {
                   }
 
                   reportData =
-                      productSummary; // ✅ Now it's in the correct format
+                      productSummary; //Now it's in the correct format
                 }
 
-                // ✅ Pass the filtered data
+                //Pass the filtered data
                 showExportOptions(context, reportType, reportData);
               },
               icon: const Icon(Icons.share),

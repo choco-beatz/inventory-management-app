@@ -8,17 +8,18 @@ import 'package:inventory_management_app/data/service/sales_database_helper.dart
 class SalesProvider extends ChangeNotifier {
   // ========== PROPERTIES ==========
   final SalesDatabaseHelper salesDatabaseHelper = SalesDatabaseHelper();
-  final CustomerDatabaseHelper customerDatabaseHelper = CustomerDatabaseHelper();
+  final CustomerDatabaseHelper customerDatabaseHelper =
+      CustomerDatabaseHelper();
   final ProductDatabaseHelper productDatabaseHelper = ProductDatabaseHelper();
-  
+
   // Cart state
   List<Map<String, dynamic>> cart = [];
   Map<String, int> productQuantities = {}; // Stores quantity for each product
-  
+
   // Customer state
   String _selectedCustomerPhoneno = '';
   String _selectedCustomerName = 'Cash Sale';
-  
+
   // Date filtering
   int _selectedMonth = DateTime.now().month;
   int _selectedYear = DateTime.now().year;
@@ -29,11 +30,13 @@ class SalesProvider extends ChangeNotifier {
   String get selectedCustomerName => _selectedCustomerName;
   int get selectedMonth => _selectedMonth;
   int get selectedYear => _selectedYear;
-  
+
   // Database streams
   Stream<QuerySnapshot> get salesStream => salesDatabaseHelper.getSales();
-  Stream<QuerySnapshot> get customerStream => customerDatabaseHelper.getCustomers();
-  Stream<QuerySnapshot> get productStream => productDatabaseHelper.getProducts();
+  Stream<QuerySnapshot> get customerStream =>
+      customerDatabaseHelper.getCustomers();
+  Stream<QuerySnapshot> get productStream =>
+      productDatabaseHelper.getProducts();
 
   // Filtered streams
   Stream<Map<String, Map<String, dynamic>>> get itemReportStream {
@@ -45,7 +48,8 @@ class SalesProvider extends ChangeNotifier {
         DateTime saleDate = timestamp.toDate();
 
         // Filter by selected month and year
-        if (saleDate.month == _selectedMonth && saleDate.year == _selectedYear) {
+        if (saleDate.month == _selectedMonth &&
+            saleDate.year == _selectedYear) {
           List<dynamic> items = sale['items'];
 
           for (var item in items) {
@@ -75,7 +79,8 @@ class SalesProvider extends ChangeNotifier {
       return querySnapshot.docs.where((sale) {
         Timestamp timestamp = sale['date'];
         DateTime saleDate = timestamp.toDate();
-        return saleDate.month == _selectedMonth && saleDate.year == _selectedYear;
+        return saleDate.month == _selectedMonth &&
+            saleDate.year == _selectedYear;
       }).toList();
     });
   }
@@ -84,7 +89,7 @@ class SalesProvider extends ChangeNotifier {
   void updateMonthYear(int month, int year) {
     _selectedMonth = month;
     _selectedYear = year;
-    notifyListeners(); 
+    notifyListeners();
   }
 
   // ========== CUSTOMER METHODS ==========
@@ -108,37 +113,30 @@ class SalesProvider extends ChangeNotifier {
     return productQuantities[id] ?? 0;
   }
 
-  // Increase product quantity
   void increaseQuantity(String id) {
-    productQuantities[id] = getQuantity(id) + 1;
+    productQuantities[id] = (productQuantities[id] ?? 0) + 1;
     notifyListeners();
   }
 
-  // Decrease product quantity
   void decreaseQuantity(String id) {
-    if (getQuantity(id) > 1) {
-      productQuantities[id] = getQuantity(id) - 1;
+    if (productQuantities[id] != null && productQuantities[id]! > 1) {
+      productQuantities[id] = productQuantities[id]! - 1;
       notifyListeners();
     }
+    notifyListeners();
   }
 
   // Add product to cart
-  void addToCart(Map<String, dynamic> product) {
-    // Convert numeric ID to string if needed
+  void addToCart(Map<String, dynamic> product, int quantity) {
     String id = product['id'].toString();
-    log("Adding to cart: $id");
 
-    int quantity = getQuantity(id);
+    // //Check quantity inside addToCart()
+    // int quantity = productQuantities[id] ?? 1;
+    // log("addToCart -> Product ID: $id | Quantity: $quantity");
+
     double price = double.tryParse(product['price'].toString()) ?? 0.0;
 
-    var existingProduct = cart.firstWhere(
-      (item) => item['id'] == id,
-      orElse: () => {},
-    );
-
-    if (existingProduct.isNotEmpty) {
-      cart.removeWhere((item) => item['id'] == id);
-    }
+    cart.removeWhere((item) => item['id'] == id);
 
     cart.add({
       'id': id,
@@ -166,7 +164,7 @@ class SalesProvider extends ChangeNotifier {
       String productId = item['id'];
       log("Checking product: ${productQuantities[productId]}");
 
-      int quantity = productQuantities[productId] ?? item['quantity'];
+      int quantity = item['quantity'];
       log("Checking Product: $productId | Quantity: $quantity");
 
       try {
@@ -180,7 +178,8 @@ class SalesProvider extends ChangeNotifier {
         if (productQuery.docs.isEmpty) {
           log("Product not found with ID: $productId");
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Product ${item['productName']} not found!')),
+            SnackBar(
+                content: Text('Product ${item['productName']} not found!')),
           );
           return;
         }
@@ -190,7 +189,8 @@ class SalesProvider extends ChangeNotifier {
 
         if (currentStock < quantity) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Not enough stock for ${item['productName']}')),
+            SnackBar(
+                content: Text('Not enough stock for ${item['productName']}')),
           );
           return;
         }
@@ -210,8 +210,11 @@ class SalesProvider extends ChangeNotifier {
     });
 
     Map<String, dynamic> saleData = {
-      'customerPhoneno': _selectedCustomerPhoneno.isNotEmpty ? _selectedCustomerPhoneno : null,
-      'customerName': _selectedCustomerPhoneno.isNotEmpty ? _selectedCustomerName : 'Cash Sale',
+      'customerPhoneno':
+          _selectedCustomerPhoneno.isNotEmpty ? _selectedCustomerPhoneno : null,
+      'customerName': _selectedCustomerPhoneno.isNotEmpty
+          ? _selectedCustomerName
+          : 'Cash Sale',
       'items': cart,
       'totalAmount': totalAmount,
       'date': Timestamp.now(),
@@ -236,14 +239,15 @@ class SalesProvider extends ChangeNotifier {
           DocumentReference productRef = productQuery.docs.first.reference;
           DocumentSnapshot productSnapshot = await productRef.get();
           int currentStock = int.parse(productSnapshot['stock'].toString());
-          await productRef.update({'stock': (currentStock - quantity).toString()});
+          await productRef
+              .update({'stock': (currentStock - quantity).toString()});
         }
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Sale recorded successfully')),
       );
-
+      selectCustomer('', 'Cash Sale');
       cart.clear();
       productQuantities.clear();
       notifyListeners();

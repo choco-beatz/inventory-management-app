@@ -22,7 +22,7 @@ class ProductList extends StatelessWidget {
 
     return Card(
       child: ListTile(
-        title: Text16(text: product['name']),
+        title: TextM18(text: product['name']),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -36,7 +36,11 @@ class ProductList extends StatelessWidget {
                     salesProvider.decreaseQuantity(id);
                   },
                 ),
-                TextM16(text: '${salesProvider.getQuantity(id)}'),
+                Consumer<SalesProvider>(
+                  builder: (context, provider, child) {
+                    return TextM16(text: '${provider.getQuantity(id)}');
+                  },
+                ),
                 IconButton(
                   icon: Icon(Icons.add),
                   onPressed: () {
@@ -49,8 +53,9 @@ class ProductList extends StatelessWidget {
         ),
         trailing: InkWell(
           onTap: () {
+            int selectedQuantity = salesProvider.getQuantity(id);
             log(salesProvider.getQuantity(id).toString());
-            salesProvider.addToCart(product.data() as Map<String, dynamic>);
+            salesProvider.addToCart(product.data() as Map<String, dynamic>, selectedQuantity);
           },
           child: const CustomDialogButton(text: 'ADD'),
         ),
